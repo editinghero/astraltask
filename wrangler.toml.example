@@ -1,0 +1,12 @@
+name = "astraltask-api"
+main = "src/worker/index.ts"
+compatibility_date = "2024-01-01"
+
+# D1 Database Configuration
+# 1. Run: wrangler d1 create astraltask-db
+# 2. Copy the database_id from output
+# 3. Paste it below
+[[d1_databases]]
+binding = "DB"
+database_name = "astraltask-db"
+database_id = "YOUR_DATABASE_ID_HERE"
