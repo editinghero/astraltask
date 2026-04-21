@@ -430,13 +430,33 @@ export default function TaskEditor({ open, onOpenChange, initialDate, task, pare
             <div className="space-y-2">
               <Label className="flex items-center gap-2"><Sparkles className="w-4 h-4" /> Subtasks</Label>
               <div className="space-y-1.5">
-                {subtasks.map(s => (
-                  <div key={s.id} className="glass btn-bordered rounded-2xl px-3 py-2.5 flex items-center gap-2">
-                    <div className={cn('w-2 h-2 rounded-full', s.completed ? 'bg-success' : 'bg-muted-foreground/40')} />
-                    <span className={cn('flex-1 text-sm', s.completed && 'line-through opacity-60')}>{s.title}</span>
-                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                  </div>
-                ))}
+                {subtasks.map(s => {
+                  const subTimeLabel = s.start_time
+                    ? s.end_time
+                      ? `${s.start_time.slice(0,5)} – ${s.end_time.slice(0,5)}`
+                      : s.start_time.slice(0,5)
+                    : null;
+                  
+                  return (
+                    <div 
+                      key={s.id} 
+                      onClick={() => { onOpenChange(false); setTimeout(() => { onOpenChange(true); }, 100); }}
+                      className="glass btn-bordered rounded-2xl px-3 py-2.5 flex items-center gap-2 cursor-pointer hover:bg-foreground/[0.03] transition-colors"
+                    >
+                      <div className={cn('w-2 h-2 rounded-full', s.completed ? 'bg-success' : 'bg-muted-foreground/40')} />
+                      <div className="flex-1 min-w-0">
+                        <span className={cn('text-sm', s.completed && 'line-through opacity-60')}>{s.title}</span>
+                        {subTimeLabel && (
+                          <span className="text-[10px] text-muted-foreground ml-2">
+                            <Clock className="w-2.5 h-2.5 inline mr-0.5" />
+                            {subTimeLabel}
+                          </span>
+                        )}
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                    </div>
+                  );
+                })}
               </div>
               <div className="flex gap-2">
                 <Input value={newSub} onChange={e => setNewSub(e.target.value)} onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addSub())}

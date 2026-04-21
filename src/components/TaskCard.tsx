@@ -1,7 +1,8 @@
 import { Task } from '@/hooks/useTasks';
-import { Check, Clock, Bell, FileText, CalendarRange, Pin, Tag } from 'lucide-react';
+import { Check, Clock, Bell, FileText, CalendarRange, Pin, Tag, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format, parseISO } from 'date-fns';
+import { useState } from 'react';
 
 interface Props {
   task: Task;
@@ -18,6 +19,7 @@ const priorityRing: Record<string, string> = {
 };
 
 export default function TaskCard({ task, subtasks = [], onToggle, onClick, compact }: Props) {
+  const [expanded, setExpanded] = useState(false);
   const completedSubs = subtasks.filter(s => s.completed).length;
   const timeLabel = task.start_time
     ? task.end_time
@@ -30,76 +32,128 @@ export default function TaskCard({ task, subtasks = [], onToggle, onClick, compa
 
   return (
     <div
-      onClick={() => onClick(task)}
       className={cn(
-        'glass glow-border rounded-2xl px-3.5 py-3 cursor-pointer animate-fade-up',
+        'glass glow-border rounded-2xl animate-fade-up',
         task.pinned && 'glow-border-strong',
         task.completed && 'opacity-55'
       )}
     >
-      <div className="flex items-start gap-3">
-        <button
-          onClick={(e) => { e.stopPropagation(); onToggle(task); }}
-          aria-label={task.completed ? 'Mark incomplete' : 'Mark complete'}
-          className={cn(
-            'mt-0.5 shrink-0 w-5 h-5 rounded-md border-2 flex items-center justify-center pressable focus-ring',
-            task.completed
-              ? 'bg-foreground border-foreground'
-              : `${priorityRing[task.priority] ?? priorityRing.medium} hover:border-foreground`
-          )}
-        >
-          {task.completed && <Check className="w-3 h-3 text-background" strokeWidth={4} />}
-        </button>
+      <div
+        onClick={() => onClick(task)}
+        className="px-3.5 py-3 cursor-pointer"
+      >
+        <div className="flex items-start gap-3">
+          <button
+            onClick={(e) => { e.stopPropagation(); onToggle(task); }}
+            aria-label={task.completed ? 'Mark incomplete' : 'Mark complete'}
+            className={cn(
+              'mt-0.5 shrink-0 w-5 h-5 rounded-md border-2 flex items-center justify-center pressable focus-ring',
+              task.completed
+                ? 'bg-foreground border-foreground'
+                : `${priorityRing[task.priority] ?? priorityRing.medium} hover:border-foreground`
+            )}
+          >
+            {task.completed && <Check className="w-3 h-3 text-background" strokeWidth={4} />}
+          </button>
 
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start gap-1.5">
-            {task.pinned && <Pin className="w-3 h-3 mt-1 shrink-0 fill-foreground/70 text-foreground/70" />}
-            <h3 className={cn('font-medium text-[15px] leading-snug', task.completed && 'line-through')}>
-              {task.title}
-            </h3>
-          </div>
-
-          {!compact && task.notes && (
-            <p className="text-[12.5px] text-muted-foreground mt-0.5 line-clamp-2">{task.notes}</p>
-          )}
-
-          {(timeLabel || rangeLabel || subtasks.length > 0 || task.notify_enabled || task.priority === 'high' || (task.tags?.length ?? 0) > 0 || (task.notes && compact)) && (
-            <div className="flex items-center flex-wrap gap-1.5 mt-2">
-              {timeLabel && (
-                <span className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-md border border-foreground/15 bg-foreground/[0.04]">
-                  <Clock className="w-3 h-3" /> {timeLabel}
-                </span>
-              )}
-              {rangeLabel && (
-                <span className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-md border border-foreground/15 bg-foreground/[0.04] text-muted-foreground">
-                  <CalendarRange className="w-3 h-3" /> {rangeLabel}
-                </span>
-              )}
-              {subtasks.length > 0 && (
-                <span className="text-[11px] font-medium px-2 py-0.5 rounded-md border border-foreground/15 bg-foreground/[0.04] text-muted-foreground">
-                  {completedSubs}/{subtasks.length}
-                </span>
-              )}
-              {(task.tags ?? []).slice(0, 2).map(tag => (
-                <span key={tag} className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-md border border-foreground/15 bg-foreground/[0.04] text-muted-foreground">
-                  <Tag className="w-2.5 h-2.5" /> {tag}
-                </span>
-              ))}
-              {task.notify_enabled && (
-                <span className="inline-flex items-center text-muted-foreground">
-                  <Bell className="w-3 h-3" />
-                </span>
-              )}
-              {task.notes && compact && (
-                <FileText className="w-3 h-3 text-muted-foreground" />
-              )}
-              {task.priority === 'high' && (
-                <span className="text-[11px] font-medium px-2 py-0.5 rounded-md border border-destructive/40 text-destructive">High</span>
-              )}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start gap-1.5">
+              {task.pinned && <Pin className="w-3 h-3 mt-1 shrink-0 fill-foreground/70 text-foreground/70" />}
+              <h3 className={cn('font-medium text-[15px] leading-snug', task.completed && 'line-through')}>
+                {task.title}
+              </h3>
             </div>
-          )}
+
+            {!compact && task.notes && (
+              <p className="text-[12.5px] text-muted-foreground mt-0.5 line-clamp-2">{task.notes}</p>
+            )}
+
+            {(timeLabel || rangeLabel || subtasks.length > 0 || task.notify_enabled || task.priority === 'high' || (task.tags?.length ?? 0) > 0 || (task.notes && compact)) && (
+              <div className="flex items-center flex-wrap gap-1.5 mt-2">
+                {timeLabel && (
+                  <span className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-md border border-foreground/15 bg-foreground/[0.04]">
+                    <Clock className="w-3 h-3" /> {timeLabel}
+                  </span>
+                )}
+                {rangeLabel && (
+                  <span className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-md border border-foreground/15 bg-foreground/[0.04] text-muted-foreground">
+                    <CalendarRange className="w-3 h-3" /> {rangeLabel}
+                  </span>
+                )}
+                {subtasks.length > 0 && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }}
+                    className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-md border border-foreground/15 bg-foreground/[0.04] text-muted-foreground hover:bg-foreground/[0.08] pressable"
+                  >
+                    <ChevronRight className={cn('w-3 h-3 transition-transform', expanded && 'rotate-90')} />
+                    {completedSubs}/{subtasks.length}
+                  </button>
+                )}
+                {(task.tags ?? []).slice(0, 2).map(tag => (
+                  <span key={tag} className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-md border border-foreground/15 bg-foreground/[0.04] text-muted-foreground">
+                    <Tag className="w-2.5 h-2.5" /> {tag}
+                  </span>
+                ))}
+                {task.notify_enabled && (
+                  <span className="inline-flex items-center text-muted-foreground">
+                    <Bell className="w-3 h-3" />
+                  </span>
+                )}
+                {task.notes && compact && (
+                  <FileText className="w-3 h-3 text-muted-foreground" />
+                )}
+                {task.priority === 'high' && (
+                  <span className="text-[11px] font-medium px-2 py-0.5 rounded-md border border-destructive/40 text-destructive">High</span>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
+
+      {/* Expandable Subtasks Section */}
+      {expanded && subtasks.length > 0 && (
+        <div className="px-3.5 pb-3 space-y-1.5 border-t border-foreground/5 pt-2">
+          {subtasks.map(subtask => {
+            const subTimeLabel = subtask.start_time
+              ? subtask.end_time
+                ? `${subtask.start_time.slice(0,5)} – ${subtask.end_time.slice(0,5)}`
+                : subtask.start_time.slice(0,5)
+              : null;
+            
+            return (
+              <div
+                key={subtask.id}
+                onClick={(e) => { e.stopPropagation(); onClick(subtask); }}
+                className="flex items-start gap-2.5 px-2.5 py-2 rounded-xl hover:bg-foreground/[0.03] cursor-pointer transition-colors"
+              >
+                <button
+                  onClick={(e) => { e.stopPropagation(); onToggle(subtask); }}
+                  aria-label={subtask.completed ? 'Mark incomplete' : 'Mark complete'}
+                  className={cn(
+                    'mt-0.5 shrink-0 w-4 h-4 rounded border-2 flex items-center justify-center pressable focus-ring',
+                    subtask.completed
+                      ? 'bg-foreground border-foreground'
+                      : 'border-foreground/25 hover:border-foreground'
+                  )}
+                >
+                  {subtask.completed && <Check className="w-2.5 h-2.5 text-background" strokeWidth={4} />}
+                </button>
+                <div className="flex-1 min-w-0">
+                  <p className={cn('text-[13px] leading-snug', subtask.completed && 'line-through opacity-60')}>
+                    {subtask.title}
+                  </p>
+                  {subTimeLabel && (
+                    <span className="inline-flex items-center gap-1 text-[10px] font-medium text-muted-foreground mt-1">
+                      <Clock className="w-2.5 h-2.5" /> {subTimeLabel}
+                    </span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
