@@ -63,8 +63,9 @@ taskRoutes.post('/', async (c) => {
         id, user_id, parent_id, title, notes, scheduled_date, 
         start_time, end_time, end_date, completed, priority, 
         color, notify_at, notify_enabled, position, tags, pinned,
+        recurring_type, recurring_interval, recurring_end_date,
         created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).bind(
       taskId,
       userId,
@@ -83,6 +84,9 @@ taskRoutes.post('/', async (c) => {
       task.position || 0,
       JSON.stringify(task.tags || []),
       task.pinned ? 1 : 0,
+      task.recurring_type || null,
+      task.recurring_interval || null,
+      task.recurring_end_date || null,
       now,
       now
     ).run();
@@ -175,6 +179,18 @@ taskRoutes.patch('/:id', async (c) => {
     if (updates.pinned !== undefined) {
       fields.push('pinned = ?');
       values.push(updates.pinned ? 1 : 0);
+    }
+    if (updates.recurring_type !== undefined) {
+      fields.push('recurring_type = ?');
+      values.push(updates.recurring_type);
+    }
+    if (updates.recurring_interval !== undefined) {
+      fields.push('recurring_interval = ?');
+      values.push(updates.recurring_interval);
+    }
+    if (updates.recurring_end_date !== undefined) {
+      fields.push('recurring_end_date = ?');
+      values.push(updates.recurring_end_date);
     }
 
     fields.push('updated_at = ?');

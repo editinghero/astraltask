@@ -30,13 +30,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Fetch user profile
       api.getProfile()
         .then((data) => {
-          setUser({
-            id: data.profile.user_id,
-            email: '', // We'll get this from the profile or token
-            display_name: data.profile.display_name,
-            avatar_url: data.profile.avatar_url,
-            theme: data.profile.theme,
-          });
+          // Decode JWT to get email (simple base64 decode)
+          try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            setUser({
+              id: data.profile.user_id,
+              email: payload.email || '',
+              display_name: data.profile.display_name,
+              avatar_url: data.profile.avatar_url,
+              theme: data.profile.theme,
+            });
+          } catch {
+            setUser({
+              id: data.profile.user_id,
+              email: '',
+              display_name: data.profile.display_name,
+              avatar_url: data.profile.avatar_url,
+              theme: data.profile.theme,
+            });
+          }
         })
         .catch(() => {
           // Token invalid, clear it

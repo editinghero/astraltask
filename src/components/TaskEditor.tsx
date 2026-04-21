@@ -45,6 +45,9 @@ export default function TaskEditor({ open, onOpenChange, initialDate, task, pare
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
   const [newSub, setNewSub] = useState('');
+  const [recurringType, setRecurringType] = useState<'daily' | 'weekly' | 'monthly' | 'yearly' | null>(null);
+  const [recurringInterval, setRecurringInterval] = useState(1);
+  const [recurringEndDate, setRecurringEndDate] = useState<Date | null>(null);
 
   useEffect(() => {
     if (task) {
@@ -61,6 +64,9 @@ export default function TaskEditor({ open, onOpenChange, initialDate, task, pare
       setNotifyAt(task.notify_at ? format(new Date(task.notify_at), "yyyy-MM-dd'T'HH:mm") : '');
       setPinned(task.pinned ?? false);
       setTags(task.tags ?? []);
+      setRecurringType(task.recurring_type ?? null);
+      setRecurringInterval(task.recurring_interval ?? 1);
+      setRecurringEndDate(task.recurring_end_date ? parseISO(task.recurring_end_date) : null);
     } else {
       setTitle(''); setNotes('');
       setDate(initialDate ?? new Date());
@@ -69,6 +75,7 @@ export default function TaskEditor({ open, onOpenChange, initialDate, task, pare
       setPriority('medium');
       setNotifyEnabled(false); setNotifyAt('');
       setPinned(false); setTags([]);
+      setRecurringType(null); setRecurringInterval(1); setRecurringEndDate(null);
     }
     setTagInput(''); setNewSub('');
   }, [task, open, initialDate]);
@@ -106,6 +113,9 @@ export default function TaskEditor({ open, onOpenChange, initialDate, task, pare
       parent_id: parentTask?.id ?? task?.parent_id ?? null as any,
       pinned,
       tags,
+      recurring_type: recurringType,
+      recurring_interval: recurringType ? recurringInterval : null as any,
+      recurring_end_date: recurringType && recurringEndDate ? dateKey(recurringEndDate) : null as any,
     };
     try {
       if (task) {
@@ -345,6 +355,67 @@ export default function TaskEditor({ open, onOpenChange, initialDate, task, pare
             )}
           </div>
 
+          <div className="glass btn-bordered rounded-2xl p-4 space-y-3">
+            <Label className="flex items-center gap-2">
+              <CalendarRange className="w-4 h-4" /> Recurring
+            </Label>
+            <select
+              value={recurringType || ''}
+              onChange={(e) => setRecurringType(e.target.value as any || null)}
+              className="w-full glass btn-bordered h-11 rounded-xl px-3 bg-transparent"
+            >
+              <option value="">Does not repeat</option>
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+              <option value="yearly">Yearly</option>
+            </select>
+            {recurringType && (
+              <>
+                <div>
+                  <Label className="text-xs">Repeat every</Label>
+                  <div className="flex gap-2 items-center mt-1">
+                    <Input
+                      type="number"
+                      min="1"
+                      max="365"
+                      value={recurringInterval}
+                      onChange={(e) => setRecurringInterval(parseInt(e.target.value) || 1)}
+                      className="glass btn-bordered h-10 rounded-xl w-20"
+                    />
+                    <span className="text-sm text-muted-foreground">
+                      {recurringType === 'daily' && 'day(s)'}
+                      {recurringType === 'weekly' && 'week(s)'}
+                      {recurringType === 'monthly' && 'month(s)'}
+                      {recurringType === 'yearly' && 'year(s)'}
+                    </span>
+                  </div>
+                </div>
+                <div>
+                  <Label className="text-xs">End date (optional)</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" className="w-full glass btn-bordered rounded-xl h-10 justify-start text-left font-normal mt-1">
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {recurringEndDate ? format(recurringEndDate, 'PPP') : 'Never'}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0 glass-strong border border-[hsl(var(--surface-border))]" align="start">
+                      <Cal mode="single" selected={recurringEndDate || undefined} onSelect={(d) => setRecurringEndDate(d || null)} />
+                      {recurringEndDate && (
+                        <div className="p-2 border-t border-[hsl(var(--surface-border))]">
+                          <Button variant="outline" size="sm" onClick={() => setRecurringEndDate(null)} className="w-full">
+                            Clear
+                          </Button>
+                        </div>
+                      )}
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </>
+            )}
+          </div>
+
           {task && (
             <div className="grid grid-cols-3 gap-2">
               <Button variant="outline" onClick={() => postpone(1)} className="glass btn-bordered rounded-2xl pressable">+1d</Button>
@@ -379,7 +450,7 @@ export default function TaskEditor({ open, onOpenChange, initialDate, task, pare
 
           <div className="flex gap-3 pt-2">
             {task && (
-              <Button variant="outline" onClick={handleDelete} aria-label="Delete task" className="glass btn-bordered rounded-2xl text-destructive pressable h-12 w-12 p-0">
+              <Button variant="outline" onClick={handleDelete} aria-label="Delete task" className="glass btn-bordered rounded-2xl text-destructive hover:bg-destructive/30 hover:border-destructive/70 hover:text-destructive pressable h-12 w-12 p-0">
                 <Trash2 className="w-4 h-4" />
               </Button>
             )}

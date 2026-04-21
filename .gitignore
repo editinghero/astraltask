@@ -15,14 +15,17 @@ dist
 dist-ssr
 *.local
 
-# Environment variables
+# Environment variables (CRITICAL - contains secrets)
 .env
 .env.*
+!.env.example
 .dev.vars
+!.dev.vars.example
 
-# Wrangler
+# Wrangler (CRITICAL - contains database IDs and secrets)
 .wrangler/
 wrangler.toml
+!wrangler.toml.example
 
 # Editor directories and files
 .vscode/*
@@ -35,7 +38,6 @@ wrangler.toml
 *.sln
 *.sw?
 
-# Lock files (optional - uncomment if you want to exclude)
 # package-lock.json
 # bun.lockb
 # bun.lock

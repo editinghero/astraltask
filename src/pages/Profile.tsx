@@ -10,6 +10,7 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { api } from '@/lib/api';
 import DeleteAccountDialog from '@/components/DeleteAccountDialog';
+import ImportExport from '@/components/ImportExport';
 
 export default function Profile() {
   const { user, signOut } = useAuth();
@@ -137,6 +138,8 @@ export default function Profile() {
           Reminders fire while the app is open. Install as PWA for background notifications on Android.
         </p>
       </section>
+
+      <ImportExport />
 
       <Button variant="outline" onClick={signOut} className="w-full glass btn-bordered rounded-2xl h-11 pressable">
         <LogOut className="w-4 h-4 mr-2" /> Sign out

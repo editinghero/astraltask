@@ -45,7 +45,7 @@ export default function DeleteAccountDialog() {
       <AlertDialogTrigger asChild>
         <Button
           variant="outline"
-          className="w-full glass border border-destructive/40 rounded-2xl h-11 pressable text-destructive hover:bg-destructive/10"
+          className="w-full glass border border-destructive/40 rounded-2xl h-11 pressable text-destructive hover:bg-destructive/30 hover:border-destructive/70 hover:text-destructive"
         >
           <Trash2 className="w-4 h-4 mr-2" /> Delete account
         </Button>

@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/providers/AuthProvider";
 import { ThemeProvider } from "@/providers/ThemeProvider";
+import { OfflineIndicator } from "@/components/OfflineIndicator";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
 import Today from "./pages/Today";
@@ -23,6 +24,7 @@ const App = () => (
     <ThemeProvider>
       <AuthProvider>
         <TooltipProvider>
+          <OfflineIndicator />
           <Toaster />
           <Sonner />
           <BrowserRouter>

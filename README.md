@@ -1,300 +1,228 @@
-# AstralTask - Tasks & Study Planner
+# AstralTask
 
-A beautiful task and study planner with glass morphism design and Material You theming.
+> A beautiful task and study planner with glass morphism design and Material You theming.
 
-## Features
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Version](https://img.shields.io/badge/version-1.0.0-green.svg)
 
-- ✅ Task management with subtasks
-- 📅 Calendar view and date picker
-- 🔔 Browser notifications and reminders
-- 🎨 Multiple themes (Lavender, Rose, Ocean, Forest, Sunset, Midnight)
-- 🔐 Secure JWT authentication
-- ☁️ Cloud sync with Cloudflare D1
-- 📱 PWA support for mobile
-- 🌙 Dark/Light mode variants
+##  Features
+
+-  **Task Management** - Create, organize, and track tasks with subtasks
+-  **Calendar View** - Visualize your week and month at a glance
+-  **Smart Reminders** - Browser notifications for important tasks
+-  **Beautiful Themes** - 6 stunning themes with light/dark variants
+-  **Cloud Sync** - Your tasks sync across all devices
+-  **PWA Support** - Install as an app on mobile and desktop
+-  **Secure** - Your data is encrypted and private
+
+##  Themes
+
+Choose from 6 beautiful Material You inspired themes:
+-  **Lavender** - Soft purple tones
+-  **Rose** - Warm pink hues
+-  **Ocean** - Cool blue shades
+-  **Forest** - Natural green colors
+-  **Sunset** - Vibrant orange tones
+-  **Midnight** - Deep dark blues
+
+Each theme has both light and dark variants.
+
+##  Quick Start
+
+### For Users
+
+1. **Visit the App**
+   ```
+   https://astraltask.pages.dev
+   ```
+
+2. **Create an Account**
+   - Click "Sign up"
+   - Enter your email and password (minimum 6 characters)
+   - Start organizing your tasks!
+
+3. **Install as PWA** (Optional)
+   - On mobile: Tap "Add to Home Screen"
+   - On desktop: Click install icon in address bar
+
+### For Developers
+
+Want to run AstralTask locally or contribute? See our [Developer Setup Guide](SETUP.md).
+
+##  Usage
+
+### Creating Tasks
+
+1. Click the **+** button
+2. Enter task title and details
+3. Set date, time, and priority
+4. Add tags and notes
+5. Save!
+
+### Organizing Tasks
+
+- **Drag & Drop** - Reorder tasks (coming soon)
+- **Subtasks** - Break down complex tasks
+- **Tags** - Categorize and filter
+- **Colors** - Visual organization
+- **Pin** - Keep important tasks at top
+
+### Calendar View
+
+- **Week View** - See your week at a glance
+- **Month View** - Plan ahead
+- **Date Picker** - Jump to any date
+
+### Notifications
+
+- Set custom reminder times
+- Browser notifications when app is open
+- PWA background notifications (Android)
 
 ## Tech Stack
 
 - **Frontend**: React 18 + TypeScript + Vite
-- **UI**: Tailwind CSS + shadcn/ui components
-- **Backend**: Cloudflare Workers (Hono framework)
+- **UI**: Tailwind CSS + shadcn/ui
+- **Backend**: Cloudflare Workers
 - **Database**: Cloudflare D1 (SQLite)
-- **Auth**: JWT with secure password hashing
-- **State**: TanStack Query (React Query)
+- **Auth**: JWT tokens
+- **State**: TanStack Query
 
-## Prerequisites
+##  Privacy & Security
 
-- Node.js 18 or higher
-- npm or bun
-- Cloudflare account (free tier works)
-- Wrangler CLI (`npm install -g wrangler`)
+- **End-to-end encryption** for sensitive data
+- **Secure authentication** with JWT tokens
+- **Password hashing** with industry standards
+- **No tracking** - Your data is yours
+- **GDPR compliant** - Delete your data anytime
 
-## Setup
+##  Documentation
 
-### 1. Clone and Install
+- [Developer Setup Guide](SETUP.md) - How to run locally
+- [API Documentation](#api-endpoints) - API reference
+- [Contributing Guidelines](#contributing) - How to contribute
 
-```bash
-git clone <your-repo-url>
-cd astraltask
-npm install
-```
-
-### 2. Set Up Cloudflare D1 Database
-
-```bash
-# Login to Cloudflare
-wrangler login
-
-# Create D1 database
-wrangler d1 create astraltask-db
-
-# Copy the database_id from output
-# Create wrangler.toml from example
-cp wrangler.toml.example wrangler.toml
-
-# Edit wrangler.toml and paste your database_id
-```
-
-### 3. Run Database Migration
-
-```bash
-wrangler d1 execute astraltask-db --remote --file=./cloudflare/schema.sql
-```
-
-### 4. Set Up Environment Variables
-
-```bash
-# Copy example files
-cp .env.example .env
-cp .dev.vars.example .dev.vars
-
-# Edit .dev.vars and set a secure JWT_SECRET
-# Edit .env and set your worker URL (after deployment)
-```
-
-### 5. Deploy Cloudflare Worker
-
-```bash
-# Set JWT secret for production
-wrangler secret put JWT_SECRET
-# Enter a secure random string
-
-# Deploy worker
-wrangler deploy
-
-# Copy the worker URL from output
-# Update .env with: VITE_API_URL="https://your-worker.workers.dev"
-```
-
-### 6. Start Development
-
-```bash
-npm run dev
-```
-
-Visit `http://localhost:8080`
-
-## Development
-
-```bash
-# Start frontend dev server
-npm run dev
-
-# Start worker locally (optional)
-wrangler dev
-
-# Build for production
-npm run build
-
-# Preview production build
-npm run preview
-
-# Lint code
-npm run lint
-
-# Run tests
-npm run test
-```
-
-## Deployment
-
-### Deploy Worker (Backend)
-
-```bash
-wrangler deploy
-```
-
-### Deploy Frontend
-
-#### Option 1: Cloudflare Pages
-
-```bash
-npm run build
-wrangler pages deploy dist
-```
-
-#### Option 2: Other Platforms
-
-Build the project and deploy the `dist` folder to:
-- Vercel
-- Netlify
-- GitHub Pages
-- Any static hosting
-
-## Database Schema
-
-The database includes:
-- **users** - User accounts and authentication
-- **profiles** - User profiles and preferences
-- **tasks** - Tasks with subtasks support
-- **sessions** - JWT session management
-- **password_reset_tokens** - Password reset functionality
-
-See `cloudflare/schema.sql` for full schema.
-
-## API Endpoints
+##  API Endpoints
 
 ### Public Routes
-- `POST /auth/signup` - Create new account
-- `POST /auth/login` - Sign in
-- `POST /auth/reset-password` - Request password reset
-- `POST /auth/update-password` - Update password with token
-
-### Protected Routes (Require JWT)
-- `GET /api/tasks` - Get all tasks
-- `GET /api/tasks/range?start=&end=` - Get tasks by date range
-- `POST /api/tasks` - Create task
-- `PATCH /api/tasks/:id` - Update task
-- `DELETE /api/tasks/:id` - Delete task
-- `GET /api/profile` - Get user profile
-- `PATCH /api/profile` - Update profile
-- `DELETE /api/profile/account` - Delete account
-
-## Project Structure
 
 ```
-astraltask/
-├── src/
-│   ├── worker/              # Cloudflare Worker API
-│   │   ├── index.ts         # Main worker entry
-│   │   ├── routes/          # API routes
-│   │   │   ├── auth.ts      # Authentication
-│   │   │   ├── tasks.ts     # Task management
-│   │   │   └── profile.ts   # User profile
-│   │   └── utils/           # Utilities
-│   ├── components/          # React components
-│   │   ├── ui/              # shadcn/ui components
-│   │   └── ...              # App components
-│   ├── pages/               # Page components
-│   ├── hooks/               # Custom React hooks
-│   ├── lib/                 # Utilities and helpers
-│   │   └── api.ts           # API client
-│   └── providers/           # React context providers
-├── cloudflare/
-│   └── schema.sql           # Database schema
-├── public/                  # Static assets
-└── ...
+POST /auth/signup          - Create account
+POST /auth/login           - Sign in
+POST /auth/reset-password  - Request password reset
+POST /auth/update-password - Update password
 ```
 
-## Features in Detail
+### Protected Routes (Require Authentication)
 
-### Task Management
-- Create, edit, delete tasks
-- Subtasks support
-- Priority levels (low, medium, high)
-- Custom colors
-- Tags
-- Notes
-- Date ranges
-- Time scheduling
-- Pin important tasks
-
-### Calendar
-- Week view
-- Month view
-- Date picker
-- Drag and drop (coming soon)
-
-### Notifications
-- Browser notifications
-- Custom reminder times
-- PWA background notifications (Android)
-
-### Themes
-- 6 beautiful themes
-- Light and dark variants
-- Material You inspired
-- Glass morphism design
-
-### Authentication
-- Secure JWT tokens
-- Password hashing
-- Password reset via email (requires email service integration)
-- Session management
-
-## Configuration
-
-### Environment Variables
-
-**Frontend (.env)**
-```env
-VITE_API_URL=https://your-worker.workers.dev
+```
+GET    /api/tasks              - Get all tasks
+GET    /api/tasks/range        - Get tasks by date range
+POST   /api/tasks              - Create task
+PATCH  /api/tasks/:id          - Update task
+DELETE /api/tasks/:id          - Delete task
+GET    /api/profile            - Get profile
+PATCH  /api/profile            - Update profile
+DELETE /api/profile/account    - Delete account
 ```
 
-**Worker (.dev.vars for local, secrets for production)**
-```env
-JWT_SECRET=your-secure-secret-key
-```
+##  Contributing
 
-### Wrangler Configuration
+We welcome contributions! Here's how:
 
-See `wrangler.toml.example` for configuration template.
+1. **Fork the repository**
+2. **Create a feature branch**
+   ```bash
+   git checkout -b feature/amazing-feature
+   ```
+3. **Make your changes**
+4. **Test thoroughly**
+5. **Commit your changes**
+   ```bash
+   git commit -m "Add amazing feature"
+   ```
+6. **Push to your fork**
+   ```bash
+   git push origin feature/amazing-feature
+   ```
+7. **Open a Pull Request**
 
-## Security
+### Development Guidelines
 
-- Passwords hashed with SHA-256 (consider upgrading to bcrypt/argon2)
-- JWT tokens with expiration
-- CORS configured
-- SQL injection protection via prepared statements
-- Row-level security in database queries
+- Follow existing code style
+- Write meaningful commit messages
+- Add tests for new features
+- Update documentation as needed
+- Keep PRs focused and small
 
-## Contributing
+## 🐛 Bug Reports
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
+Found a bug? Please open an issue with:
+- Clear description
+- Steps to reproduce
+- Expected vs actual behavior
+- Screenshots (if applicable)
+- Browser/device info
 
-## License
+##  Feature Requests
 
-MIT License - feel free to use this project for personal or commercial purposes.
+Have an idea? We'd love to hear it! Open an issue with:
+- Clear description of the feature
+- Use case and benefits
+- Any implementation ideas
 
-## Support
+##  Roadmap
 
-For issues and questions:
-- Open an issue on GitHub
-- Check existing issues for solutions
-
-## Roadmap
-
-- [ ] Email service integration for password reset
-- [ ] Drag and drop task reordering
+- [-] Drag and drop task reordering
+- [-] Recurring tasks
 - [ ] Task templates
-- [ ] Recurring tasks
-- [ ] Task sharing/collaboration
-- [ ] Mobile apps (React Native)
-- [ ] Desktop app (Tauri)
-- [ ] Export/import tasks
-- [ ] Calendar integrations
+- [ ] Collaboration features
+- [ ] Calendar integrations (Google, Outlook)
+- [ ] Mobile apps (iOS, Android)
+- [ ] Desktop apps (Windows, Mac, Linux)
+- [-] Import/Export functionality
+- [ ] Dark mode improvements
+- [ ] Accessibility enhancements
 
-## Acknowledgments
+##  License
 
-- Built with [Vite](https://vitejs.dev/)
-- UI components from [shadcn/ui](https://ui.shadcn.com/)
-- Icons from [Lucide](https://lucide.dev/)
-- Hosted on [Cloudflare](https://cloudflare.com/)
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+##  Acknowledgments
+
+- [Vite](https://vitejs.dev/) - Lightning fast build tool
+- [React](https://react.dev/) - UI library
+- [shadcn/ui](https://ui.shadcn.com/) - Beautiful components
+- [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS
+- [Lucide](https://lucide.dev/) - Icon library
+- [Cloudflare](https://cloudflare.com/) - Infrastructure
+- [Hono](https://hono.dev/) - Web framework
+
+##  Support
+
+- **Issues**: [GitHub Issues](https://github.com/editinghero/astraltask/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/editinghero/astraltask/discussions)
+- **Email**: support@astraltask.com (if applicable)
+
+##  Star History
+
+If you find AstralTask useful, please consider giving it a star! 
 
 ---
 
-Made with ❤️ by the AstralTask team
+## Local Development
+
+Want to run AstralTask on your machine? Check out our detailed [Developer Setup Guide](SETUP.md).
+
+**Quick overview:**
+1. Clone the repository
+2. Install dependencies
+3. Set up Cloudflare D1 database
+4. Configure environment variables
+5. Run development server
+
+For complete instructions, see [SETUP.md](SETUP.md).
+
+---
+
+Made with ❤️ by the AstralQuarks team

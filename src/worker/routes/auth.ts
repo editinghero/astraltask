@@ -58,7 +58,8 @@ authRoutes.post('/signup', async (c) => {
         email,
         exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24 * 7) // 7 days
       },
-      c.env.JWT_SECRET
+      c.env.JWT_SECRET,
+      'HS256'
     );
 
     // Create session
@@ -123,7 +124,8 @@ authRoutes.post('/login', async (c) => {
         email: user.email,
         exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24 * 7) // 7 days
       },
-      c.env.JWT_SECRET
+      c.env.JWT_SECRET,
+      'HS256'
     );
 
     // Create session

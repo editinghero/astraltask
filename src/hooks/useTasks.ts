@@ -22,6 +22,9 @@ export interface Task {
   position: number;
   tags: string | string[];
   pinned: number | boolean;
+  recurring_type: 'daily' | 'weekly' | 'monthly' | 'yearly' | null;
+  recurring_interval: number | null;
+  recurring_end_date: string | null;
   created_at: number | string;
   updated_at: number | string;
 }
@@ -38,7 +41,7 @@ function normalizeTask(task: any): Task {
     completed: !!task.completed,
     notify_enabled: !!task.notify_enabled,
     pinned: !!task.pinned,
-    tags: typeof task.tags === 'string' ? JSON.parse(task.tags) : task.tags,
+    tags: task.tags ? (typeof task.tags === 'string' ? JSON.parse(task.tags) : task.tags) : [],
     notify_at: task.notify_at ? (typeof task.notify_at === 'number' ? new Date(task.notify_at * 1000).toISOString() : task.notify_at) : null,
   };
 }
