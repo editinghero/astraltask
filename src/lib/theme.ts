@@ -3,7 +3,8 @@ export type Theme =
   | 'claude-light'
   | 'claude-dark'
   | 'true-dark'
-  | 'warm-dark';
+  | 'warm-dark'
+  | 'catppuccin-mocha';
 
 export const THEMES: { id: Theme; label: string; swatch: string; mode: 'light' | 'dark'; hint: string }[] = [
   { id: 'peach-light',  label: 'Peach',  mode: 'light', hint: 'Soft & warm',
@@ -16,6 +17,8 @@ export const THEMES: { id: Theme; label: string; swatch: string; mode: 'light' |
     swatch: 'linear-gradient(135deg,#0f0f0f,#1a1a1a,#2a2a2a)' },
   { id: 'warm-dark',    label: 'Cocoa',  mode: 'dark',  hint: 'Custom warm',
     swatch: 'linear-gradient(135deg,#221F1E,#342E28,#B1906C,#DDC6A5)' },
+  { id: 'catppuccin-mocha', label: 'Mocha', mode: 'dark', hint: 'Catppuccin',
+    swatch: 'linear-gradient(135deg,#1e1e2e,#bac2de,#cba6f7)' },
 ];
 
 const KEY = 'astraltask-theme';

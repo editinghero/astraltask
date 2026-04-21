@@ -58,6 +58,12 @@ taskRoutes.post('/', async (c) => {
     const taskId = generateId();
     const now = Math.floor(Date.now() / 1000);
 
+    // Convert notify_at from ISO string to Unix timestamp
+    let notifyAtTimestamp = null;
+    if (task.notify_at) {
+      notifyAtTimestamp = Math.floor(new Date(task.notify_at).getTime() / 1000);
+    }
+
     await c.env.DB.prepare(`
       INSERT INTO tasks (
         id, user_id, parent_id, title, notes, scheduled_date, 
@@ -79,7 +85,7 @@ taskRoutes.post('/', async (c) => {
       task.completed ? 1 : 0,
       task.priority || 'medium',
       task.color || null,
-      task.notify_at || null,
+      notifyAtTimestamp,
       task.notify_enabled ? 1 : 0,
       task.position || 0,
       JSON.stringify(task.tags || []),
@@ -162,7 +168,9 @@ taskRoutes.patch('/:id', async (c) => {
     }
     if (updates.notify_at !== undefined) {
       fields.push('notify_at = ?');
-      values.push(updates.notify_at);
+      // Convert ISO string to Unix timestamp
+      const notifyAtTimestamp = updates.notify_at ? Math.floor(new Date(updates.notify_at).getTime() / 1000) : null;
+      values.push(notifyAtTimestamp);
     }
     if (updates.notify_enabled !== undefined) {
       fields.push('notify_enabled = ?');

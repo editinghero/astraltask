@@ -13,7 +13,6 @@ const PRIORITY_RANK: Record<string, number> = { high: 0, medium: 1, low: 2 };
 export default function Upcoming() {
   const { tasks, toggle, remove } = useTasks();
   const [editing, setEditing] = useState<Task | null>(null);
-  const [editingSubtask, setEditingSubtask] = useState<Task | null>(null);
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
 
   const availableTags = useMemo(() => {
@@ -111,9 +110,7 @@ export default function Upcoming() {
                   subtasks={tasks.filter(s => s.parent_id === t.id)} 
                   onToggle={toggle.mutate} 
                   onClick={(task) => {
-                    if (task.parent_id) {
-                      setEditingSubtask(task);
-                    } else {
+                    if (!task.parent_id) {
                       setEditing(task);
                     }
                   }} 
@@ -125,7 +122,6 @@ export default function Upcoming() {
       })}
 
       <TaskEditor open={!!editing} onOpenChange={(o) => !o && setEditing(null)} task={editing} />
-      <TaskEditor open={!!editingSubtask} onOpenChange={(o) => !o && setEditingSubtask(null)} task={editingSubtask} parentTask={editingSubtask?.parent_id ? tasks.find(t => t.id === editingSubtask.parent_id) : undefined} />
     </div>
   );
 }

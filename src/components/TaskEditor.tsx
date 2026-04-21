@@ -9,7 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar as Cal } from '@/components/ui/calendar';
 import { format, parseISO, differenceInCalendarDays } from 'date-fns';
-import { CalendarIcon, Trash2, Plus, Bell, Clock, Sparkles, ChevronRight, CalendarRange, Pin, Tag, X, Copy } from 'lucide-react';
+import { CalendarIcon, Trash2, Plus, Bell, Clock, Sparkles, CalendarRange, Pin, Tag, X, Copy, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { dateKey } from '@/lib/date';
@@ -431,38 +431,38 @@ export default function TaskEditor({ open, onOpenChange, initialDate, task, pare
               <Label className="flex items-center gap-2"><Sparkles className="w-4 h-4" /> Subtasks</Label>
               <div className="space-y-1.5">
                 {subtasks.map(s => {
-                  const subTimeLabel = s.start_time
-                    ? s.end_time
-                      ? `${s.start_time.slice(0,5)} – ${s.end_time.slice(0,5)}`
-                      : s.start_time.slice(0,5)
-                    : null;
-                  
                   return (
                     <div 
                       key={s.id} 
-                      onClick={() => { 
-                        // Open subtask in editor
-                        onOpenChange(false);
-                        setTimeout(() => {
-                          // Find the parent task to pass it
-                          const parent = tasks.find(t => t.id === s.parent_id);
-                          // Trigger opening the subtask editor
-                          // This will be handled by the parent component
-                        }, 50);
-                      }}
-                      className="glass btn-bordered rounded-2xl px-3 py-2.5 flex items-center gap-2 cursor-pointer hover:bg-foreground/[0.03] transition-colors"
+                      className="glass btn-bordered rounded-2xl px-3 py-2.5 flex items-center gap-2"
                     >
-                      <div className={cn('w-2 h-2 rounded-full', s.completed ? 'bg-success' : 'bg-muted-foreground/40')} />
+                      <button
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          await update.mutateAsync({ id: s.id, completed: !s.completed } as any);
+                        }}
+                        className={cn(
+                          'shrink-0 w-4 h-4 rounded border-2 flex items-center justify-center pressable focus-ring',
+                          s.completed
+                            ? 'bg-foreground border-foreground'
+                            : 'border-foreground/25 hover:border-foreground'
+                        )}
+                      >
+                        {s.completed && <Check className="w-2.5 h-2.5 text-background" strokeWidth={4} />}
+                      </button>
                       <div className="flex-1 min-w-0">
                         <span className={cn('text-sm', s.completed && 'line-through opacity-60')}>{s.title}</span>
-                        {subTimeLabel && (
-                          <span className="text-[10px] text-muted-foreground ml-2">
-                            <Clock className="w-2.5 h-2.5 inline mr-0.5" />
-                            {subTimeLabel}
-                          </span>
-                        )}
                       </div>
-                      <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                      <button
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          await remove.mutateAsync(s.id);
+                          toast.success('Subtask deleted');
+                        }}
+                        className="shrink-0 opacity-0 hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
                     </div>
                   );
                 })}

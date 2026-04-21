@@ -36,13 +36,25 @@ export type TaskInput = Partial<Omit<Task, 'id' | 'user_id' | 'created_at' | 'up
 
 // Helper to normalize task from D1 (SQLite returns integers for booleans)
 function normalizeTask(task: any): Task {
+  // Convert notify_at properly
+  let notifyAt = null;
+  if (task.notify_at) {
+    if (typeof task.notify_at === 'number') {
+      // If it's a Unix timestamp (seconds), convert to milliseconds
+      notifyAt = new Date(task.notify_at * 1000).toISOString();
+    } else if (typeof task.notify_at === 'string') {
+      // If it's already a string, use it as is
+      notifyAt = task.notify_at;
+    }
+  }
+
   return {
     ...task,
     completed: !!task.completed,
     notify_enabled: !!task.notify_enabled,
     pinned: !!task.pinned,
     tags: task.tags ? (typeof task.tags === 'string' ? JSON.parse(task.tags) : task.tags) : [],
-    notify_at: task.notify_at ? (typeof task.notify_at === 'number' ? new Date(task.notify_at * 1000).toISOString() : task.notify_at) : null,
+    notify_at: notifyAt,
   };
 }
 

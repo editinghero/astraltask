@@ -115,16 +115,10 @@ export default function TaskCard({ task, subtasks = [], onToggle, onClick, compa
       {expanded && subtasks.length > 0 && (
         <div className="px-3.5 pb-3 space-y-1.5 border-t border-foreground/5 pt-2">
           {subtasks.map(subtask => {
-            const subTimeLabel = subtask.start_time
-              ? subtask.end_time
-                ? `${subtask.start_time.slice(0,5)} – ${subtask.end_time.slice(0,5)}`
-                : subtask.start_time.slice(0,5)
-              : null;
-            
             return (
               <div
                 key={subtask.id}
-                className="flex items-start gap-2.5 px-2.5 py-2 rounded-xl hover:bg-foreground/[0.03] cursor-pointer transition-colors"
+                className="flex items-start gap-2.5 px-2.5 py-2 rounded-xl"
               >
                 <button
                   onClick={(e) => { e.stopPropagation(); onToggle(subtask); }}
@@ -138,18 +132,10 @@ export default function TaskCard({ task, subtasks = [], onToggle, onClick, compa
                 >
                   {subtask.completed && <Check className="w-2.5 h-2.5 text-background" strokeWidth={4} />}
                 </button>
-                <div 
-                  className="flex-1 min-w-0"
-                  onClick={(e) => { e.stopPropagation(); onClick(subtask); }}
-                >
+                <div className="flex-1 min-w-0">
                   <p className={cn('text-[13px] leading-snug', subtask.completed && 'line-through opacity-60')}>
                     {subtask.title}
                   </p>
-                  {subTimeLabel && (
-                    <span className="inline-flex items-center gap-1 text-[10px] font-medium text-muted-foreground mt-1">
-                      <Clock className="w-2.5 h-2.5" /> {subTimeLabel}
-                    </span>
-                  )}
                 </div>
               </div>
             );

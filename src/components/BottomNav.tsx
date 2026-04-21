@@ -26,7 +26,7 @@ export default function BottomNav({ onAddTask }: Props) {
                   key={i}
                   onClick={onAddTask}
                   aria-label="Add task"
-                  className="-mt-5 w-12 h-12 rounded-2xl btn-bordered bg-primary text-primary-foreground flex items-center justify-center pressable hover:bg-primary/90 focus-ring"
+                  className="w-12 h-12 rounded-full btn-bordered bg-primary text-primary-foreground flex items-center justify-center pressable hover:bg-primary/90 focus-ring"
                 >
                   <Icon className="w-5 h-5" strokeWidth={2.5} />
                 </button>

@@ -21,7 +21,6 @@ export default function Today() {
   const [selected, setSelected] = useState<Date>(new Date());
   const [weekStart, setWeekStart] = useState<Date>(new Date());
   const [editing, setEditing] = useState<Task | null>(null);
-  const [editingSubtask, setEditingSubtask] = useState<Task | null>(null);
   const [creating, setCreating] = useState(false);
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
 
@@ -45,6 +44,8 @@ export default function Today() {
     tasks.forEach(t => (t.tags ?? []).forEach(tag => set.add(tag)));
     return Array.from(set).sort();
   }, [tasks]);
+
+  const subtasksOf = (id: string) => tasks.filter(t => t.parent_id === id);
 
   const dayTasks = useMemo(() => {
     let list = tasks.filter(t => !t.parent_id && taskCoversDay(t.scheduled_date, t.end_date, selected));
@@ -81,8 +82,6 @@ export default function Today() {
     const done = allTasksWithSubs.filter(t => t.completed).length;
     return { total, done, pct: total ? Math.round((done / total) * 100) : 0 };
   }, [dayTasks, tasks]);
-
-  const subtasksOf = (id: string) => tasks.filter(t => t.parent_id === id);
   const greeting = useMemo(() => {
     const h = new Date().getHours();
     return h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
@@ -174,19 +173,10 @@ export default function Today() {
                 <TaskCard 
                   task={t} 
                   subtasks={subtasksOf(t.id)} 
-                  onToggle={(task) => {
-                    // Check if it's a subtask or main task
-                    if (task.parent_id) {
-                      toggle.mutate(task);
-                    } else {
-                      toggle.mutate(task);
-                    }
-                  }} 
+                  onToggle={toggle.mutate} 
                   onClick={(task) => {
-                    // Open subtask in separate editor if it has a parent
-                    if (task.parent_id) {
-                      setEditingSubtask(task);
-                    } else {
+                    // Only open editor for main tasks, not subtasks
+                    if (!task.parent_id) {
                       setEditing(task);
                     }
                   }} 
@@ -201,7 +191,6 @@ export default function Today() {
       </section>
 
       <TaskEditor open={!!editing} onOpenChange={(o) => !o && setEditing(null)} task={editing} />
-      <TaskEditor open={!!editingSubtask} onOpenChange={(o) => !o && setEditingSubtask(null)} task={editingSubtask} parentTask={editingSubtask?.parent_id ? tasks.find(t => t.id === editingSubtask.parent_id) : undefined} />
       <TaskEditor open={creating} onOpenChange={setCreating} initialDate={selected} />
     </div>
   );

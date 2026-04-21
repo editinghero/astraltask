@@ -13,7 +13,6 @@ export default function CalendarPage() {
   const { tasks, toggle } = useTasks();
   const [selected, setSelected] = useState<Date>(new Date());
   const [editing, setEditing] = useState<Task | null>(null);
-  const [editingSubtask, setEditingSubtask] = useState<Task | null>(null);
   const [creating, setCreating] = useState(false);
 
   const taskDates = useMemo(() => {
@@ -99,9 +98,7 @@ export default function CalendarPage() {
                 subtasks={tasks.filter(s => s.parent_id === t.id)} 
                 onToggle={toggle.mutate} 
                 onClick={(task) => {
-                  if (task.parent_id) {
-                    setEditingSubtask(task);
-                  } else {
+                  if (!task.parent_id) {
                     setEditing(task);
                   }
                 }} 
@@ -112,7 +109,6 @@ export default function CalendarPage() {
       </section>
 
       <TaskEditor open={!!editing} onOpenChange={(o) => !o && setEditing(null)} task={editing} />
-      <TaskEditor open={!!editingSubtask} onOpenChange={(o) => !o && setEditingSubtask(null)} task={editingSubtask} parentTask={editingSubtask?.parent_id ? tasks.find(t => t.id === editingSubtask.parent_id) : undefined} />
       <TaskEditor open={creating} onOpenChange={setCreating} initialDate={selected} />
     </div>
   );

@@ -32,11 +32,19 @@ export default function ImportExport() {
     try {
       const importedTasks = await importTasks(file);
       
-      // Import tasks one by one
+      // Create a map to track old IDs to new IDs for parent_id mapping
+      const idMap = new Map<string, string>();
+      
+      // First, import all main tasks (without parent_id)
+      const mainTasks = importedTasks.filter(t => !t.parent_id);
+      const subtasks = importedTasks.filter(t => t.parent_id);
+      
       let successCount = 0;
-      for (const task of importedTasks) {
+      
+      // Import main tasks first
+      for (const task of mainTasks) {
         try {
-          await create.mutateAsync({
+          const result = await create.mutateAsync({
             title: task.title,
             notes: task.notes,
             scheduled_date: task.scheduled_date,
@@ -50,9 +58,38 @@ export default function ImportExport() {
             recurring_interval: task.recurring_interval,
             recurring_end_date: task.recurring_end_date,
           });
+          // Map old ID to new ID
+          idMap.set(task.id, result.id);
           successCount++;
         } catch (err) {
           console.error('Failed to import task:', task.title, err);
+        }
+      }
+      
+      // Then import subtasks with updated parent_id
+      for (const task of subtasks) {
+        try {
+          const newParentId = idMap.get(task.parent_id!);
+          if (!newParentId) {
+            console.warn('Parent task not found for subtask:', task.title);
+            continue;
+          }
+          
+          await create.mutateAsync({
+            title: task.title,
+            notes: task.notes,
+            scheduled_date: task.scheduled_date,
+            start_time: task.start_time,
+            end_time: task.end_time,
+            end_date: task.end_date,
+            priority: task.priority,
+            color: task.color,
+            tags: Array.isArray(task.tags) ? task.tags : [],
+            parent_id: newParentId,
+          });
+          successCount++;
+        } catch (err) {
+          console.error('Failed to import subtask:', task.title, err);
         }
       }
       
