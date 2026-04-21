@@ -124,7 +124,6 @@ export default function TaskCard({ task, subtasks = [], onToggle, onClick, compa
             return (
               <div
                 key={subtask.id}
-                onClick={(e) => { e.stopPropagation(); onClick(subtask); }}
                 className="flex items-start gap-2.5 px-2.5 py-2 rounded-xl hover:bg-foreground/[0.03] cursor-pointer transition-colors"
               >
                 <button
@@ -139,7 +138,10 @@ export default function TaskCard({ task, subtasks = [], onToggle, onClick, compa
                 >
                   {subtask.completed && <Check className="w-2.5 h-2.5 text-background" strokeWidth={4} />}
                 </button>
-                <div className="flex-1 min-w-0">
+                <div 
+                  className="flex-1 min-w-0"
+                  onClick={(e) => { e.stopPropagation(); onClick(subtask); }}
+                >
                   <p className={cn('text-[13px] leading-snug', subtask.completed && 'line-through opacity-60')}>
                     {subtask.title}
                   </p>

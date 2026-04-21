@@ -14,6 +14,7 @@ export default function Search() {
   const { tasks, toggle, remove } = useTasks();
   const [query, setQuery] = useState('');
   const [editing, setEditing] = useState<Task | null>(null);
+  const [editingSubtask, setEditingSubtask] = useState<Task | null>(null);
   const [activeTag, setActiveTag] = useState<string | null>(null);
 
   const allTags = useMemo(() => {
@@ -145,7 +146,13 @@ export default function Search() {
                     task={t}
                     subtasks={tasks.filter(s => s.parent_id === t.id)}
                     onToggle={toggle.mutate}
-                    onClick={setEditing}
+                    onClick={(task) => {
+                      if (task.parent_id) {
+                        setEditingSubtask(task);
+                      } else {
+                        setEditing(task);
+                      }
+                    }}
                   />
                 </SwipeableTask>
               ))}
@@ -155,6 +162,7 @@ export default function Search() {
       )}
 
       <TaskEditor open={!!editing} onOpenChange={(o) => !o && setEditing(null)} task={editing} />
+      <TaskEditor open={!!editingSubtask} onOpenChange={(o) => !o && setEditingSubtask(null)} task={editingSubtask} parentTask={editingSubtask?.parent_id ? tasks.find(t => t.id === editingSubtask.parent_id) : undefined} />
     </div>
   );
 }

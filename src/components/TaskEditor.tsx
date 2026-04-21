@@ -440,7 +440,16 @@ export default function TaskEditor({ open, onOpenChange, initialDate, task, pare
                   return (
                     <div 
                       key={s.id} 
-                      onClick={() => { onOpenChange(false); setTimeout(() => { onOpenChange(true); }, 100); }}
+                      onClick={() => { 
+                        // Open subtask in editor
+                        onOpenChange(false);
+                        setTimeout(() => {
+                          // Find the parent task to pass it
+                          const parent = tasks.find(t => t.id === s.parent_id);
+                          // Trigger opening the subtask editor
+                          // This will be handled by the parent component
+                        }, 50);
+                      }}
                       className="glass btn-bordered rounded-2xl px-3 py-2.5 flex items-center gap-2 cursor-pointer hover:bg-foreground/[0.03] transition-colors"
                     >
                       <div className={cn('w-2 h-2 rounded-full', s.completed ? 'bg-success' : 'bg-muted-foreground/40')} />

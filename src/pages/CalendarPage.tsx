@@ -13,6 +13,7 @@ export default function CalendarPage() {
   const { tasks, toggle } = useTasks();
   const [selected, setSelected] = useState<Date>(new Date());
   const [editing, setEditing] = useState<Task | null>(null);
+  const [editingSubtask, setEditingSubtask] = useState<Task | null>(null);
   const [creating, setCreating] = useState(false);
 
   const taskDates = useMemo(() => {
@@ -92,13 +93,26 @@ export default function CalendarPage() {
         ) : (
           <div className="space-y-2">
             {dayTasks.map(t => (
-              <TaskCard key={t.id} task={t} subtasks={tasks.filter(s => s.parent_id === t.id)} onToggle={toggle.mutate} onClick={setEditing} />
+              <TaskCard 
+                key={t.id} 
+                task={t} 
+                subtasks={tasks.filter(s => s.parent_id === t.id)} 
+                onToggle={toggle.mutate} 
+                onClick={(task) => {
+                  if (task.parent_id) {
+                    setEditingSubtask(task);
+                  } else {
+                    setEditing(task);
+                  }
+                }} 
+              />
             ))}
           </div>
         )}
       </section>
 
       <TaskEditor open={!!editing} onOpenChange={(o) => !o && setEditing(null)} task={editing} />
+      <TaskEditor open={!!editingSubtask} onOpenChange={(o) => !o && setEditingSubtask(null)} task={editingSubtask} parentTask={editingSubtask?.parent_id ? tasks.find(t => t.id === editingSubtask.parent_id) : undefined} />
       <TaskEditor open={creating} onOpenChange={setCreating} initialDate={selected} />
     </div>
   );

@@ -21,6 +21,7 @@ export default function Today() {
   const [selected, setSelected] = useState<Date>(new Date());
   const [weekStart, setWeekStart] = useState<Date>(new Date());
   const [editing, setEditing] = useState<Task | null>(null);
+  const [editingSubtask, setEditingSubtask] = useState<Task | null>(null);
   const [creating, setCreating] = useState(false);
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
 
@@ -71,10 +72,15 @@ export default function Today() {
   }, [tasks, selected, filters]);
 
   const stats = useMemo(() => {
-    const total = dayTasks.length;
-    const done = dayTasks.filter(t => t.completed).length;
+    // Include subtasks in the completion calculation
+    const allTasksWithSubs = dayTasks.flatMap(t => {
+      const subs = subtasksOf(t.id);
+      return [t, ...subs];
+    });
+    const total = allTasksWithSubs.length;
+    const done = allTasksWithSubs.filter(t => t.completed).length;
     return { total, done, pct: total ? Math.round((done / total) * 100) : 0 };
-  }, [dayTasks]);
+  }, [dayTasks, tasks]);
 
   const subtasksOf = (id: string) => tasks.filter(t => t.parent_id === id);
   const greeting = useMemo(() => {
@@ -165,7 +171,26 @@ export default function Today() {
                 onComplete={() => handleSwipeComplete(t)}
                 onDelete={() => handleSwipeDelete(t)}
               >
-                <TaskCard task={t} subtasks={subtasksOf(t.id)} onToggle={toggle.mutate} onClick={setEditing} />
+                <TaskCard 
+                  task={t} 
+                  subtasks={subtasksOf(t.id)} 
+                  onToggle={(task) => {
+                    // Check if it's a subtask or main task
+                    if (task.parent_id) {
+                      toggle.mutate(task);
+                    } else {
+                      toggle.mutate(task);
+                    }
+                  }} 
+                  onClick={(task) => {
+                    // Open subtask in separate editor if it has a parent
+                    if (task.parent_id) {
+                      setEditingSubtask(task);
+                    } else {
+                      setEditing(task);
+                    }
+                  }} 
+                />
               </SwipeableTask>
             ))}
             <p className="text-center text-[10.5px] text-muted-foreground pt-1">
@@ -176,6 +201,7 @@ export default function Today() {
       </section>
 
       <TaskEditor open={!!editing} onOpenChange={(o) => !o && setEditing(null)} task={editing} />
+      <TaskEditor open={!!editingSubtask} onOpenChange={(o) => !o && setEditingSubtask(null)} task={editingSubtask} parentTask={editingSubtask?.parent_id ? tasks.find(t => t.id === editingSubtask.parent_id) : undefined} />
       <TaskEditor open={creating} onOpenChange={setCreating} initialDate={selected} />
     </div>
   );
