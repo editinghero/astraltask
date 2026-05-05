@@ -1,0 +1,3 @@
+## 2025-05-15 - [Accessibility & Loading Feedback]
+**Learning:** Buttons triggering asynchronous actions (specifically TanStack Query mutations) should display a loading spinner (e.g., 'Loader2' from lucide-react) and be disabled while the mutation is pending to prevent double-submissions and provide visual feedback. Additionally, interactive toggles (like visibility switchers) must include 'aria-expanded' and all icon-only buttons must include an 'aria-label' to accurately reflect their state to screen readers.
+**Action:** Always check for `isPending` state in mutations to update button UI, and ensure `aria-label` and `aria-expanded` are present on all interactive elements.

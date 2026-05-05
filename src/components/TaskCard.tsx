@@ -83,6 +83,8 @@ export default function TaskCard({ task, subtasks = [], onToggle, onClick, compa
                 {subtasks.length > 0 && (
                   <button
                     onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }}
+                    aria-expanded={expanded}
+                    aria-label={expanded ? 'Hide subtasks' : 'Show subtasks'}
                     className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-md border border-foreground/15 bg-foreground/[0.04] text-muted-foreground hover:bg-foreground/[0.08] pressable"
                   >
                     <ChevronRight className={cn('w-3 h-3 transition-transform', expanded && 'rotate-90')} />
