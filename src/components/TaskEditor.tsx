@@ -235,7 +235,14 @@ export default function TaskEditor({ open, onOpenChange, initialDate, task, pare
               {tags.map(t => (
                 <span key={t} className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-1 rounded-md border border-foreground/15 bg-foreground/[0.05]">
                   #{t}
-                  <button type="button" onClick={() => removeTag(t)} className="opacity-60 hover:opacity-100"><X className="w-3 h-3" /></button>
+                  <button
+                    type="button"
+                    onClick={() => removeTag(t)}
+                    aria-label={`Remove tag ${t}`}
+                    className="opacity-60 hover:opacity-100"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
                 </span>
               ))}
               {tags.length < 5 && (
@@ -479,11 +486,21 @@ export default function TaskEditor({ open, onOpenChange, initialDate, task, pare
 
           <div className="flex gap-3 pt-2">
             {task && (
-              <Button variant="outline" onClick={handleDelete} disabled={remove.isPending} aria-label="Delete task" className="glass btn-bordered rounded-2xl text-destructive hover:bg-destructive/30 hover:border-destructive/70 hover:text-destructive pressable h-12 w-12 p-0">
+              <Button
+                variant="outline"
+                onClick={handleDelete}
+                disabled={remove.isPending}
+                aria-label="Delete task"
+                className="glass btn-bordered rounded-2xl text-destructive hover:bg-destructive/30 hover:border-destructive/70 hover:text-destructive pressable h-12 w-12 p-0"
+              >
                 {remove.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
               </Button>
             )}
-            <Button onClick={handleSave} disabled={create.isPending || update.isPending} className="flex-1 h-12 rounded-2xl btn-bordered bg-primary text-primary-foreground hover:bg-primary/90 font-semibold pressable">
+            <Button
+              onClick={handleSave}
+              disabled={create.isPending || update.isPending}
+              className="flex-1 h-12 rounded-2xl btn-bordered bg-primary text-primary-foreground hover:bg-primary/90 font-semibold pressable"
+            >
               {(create.isPending || update.isPending) && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
               {task ? 'Save changes' : 'Create task'}
             </Button>
