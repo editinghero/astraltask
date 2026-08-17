@@ -84,7 +84,7 @@ export default function Today() {
     const h = new Date().getHours();
     return h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
   }, []);
-  const name = user?.display_name || user?.email?.split('@')[0] || 'there';
+  const name = 'there';
 
   const handleSwipeComplete = (t: Task) => {
     toggle.mutate(t);
