@@ -1,136 +1,121 @@
-const API_URL = import.meta.env.VITE_API_URL || 'https://astraltask-api.quasars.workers.dev';
+import { Task } from '@/hooks/useTasks';
 
-class ApiClient {
-  private token: string | null = null;
+const LOCAL_STORAGE_TASKS_KEY = 'astraltask_tasks';
+const LOCAL_STORAGE_PROFILE_KEY = 'astraltask_profile';
 
-  constructor() {
-    this.token = localStorage.getItem('auth_token');
+// Artificial delay to mock async behavior
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+export interface Profile {
+  user_id: string;
+  display_name?: string;
+  theme?: string;
+}
+
+class LocalStorageApi {
+  // Helpers
+  private getStoredTasks(): Task[] {
+    const data = localStorage.getItem(LOCAL_STORAGE_TASKS_KEY);
+    return data ? JSON.parse(data) : [];
   }
 
-  setToken(token: string) {
-    this.token = token;
-    localStorage.setItem('auth_token', token);
+  private setStoredTasks(tasks: Task[]) {
+    localStorage.setItem(LOCAL_STORAGE_TASKS_KEY, JSON.stringify(tasks));
   }
 
-  clearToken() {
-    this.token = null;
-    localStorage.removeItem('auth_token');
+  private getStoredProfile(): Profile {
+    const data = localStorage.getItem(LOCAL_STORAGE_PROFILE_KEY);
+    return data ? JSON.parse(data) : { user_id: 'local_user', display_name: 'Local User' };
   }
 
-  private async request(endpoint: string, options: RequestInit = {}) {
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    };
-
-    if (this.token && !endpoint.startsWith('/auth')) {
-      headers['Authorization'] = `Bearer ${this.token}`;
-    }
-
-    try {
-      const response = await fetch(`${API_URL}${endpoint}`, {
-        ...options,
-        headers,
-      });
-
-      if (!response.ok) {
-        const error = await response.json().catch(() => ({ error: 'Request failed' }));
-        throw new Error(error.error || `HTTP ${response.status}`);
-      }
-
-      return response.json();
-    } catch (error: any) {
-      // Check if offline
-      if (!navigator.onLine || error.message === 'Failed to fetch') {
-        throw new Error('You are offline. Please check your connection.');
-      }
-      throw error;
-    }
-  }
-
-  // Auth
-  async signup(email: string, password: string, name?: string) {
-    const data = await this.request('/auth/signup', {
-      method: 'POST',
-      body: JSON.stringify({ email, password, name }),
-    });
-    this.setToken(data.token);
-    return data;
-  }
-
-  async login(email: string, password: string) {
-    const data = await this.request('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ email, password }),
-    });
-    this.setToken(data.token);
-    return data;
-  }
-
-  async requestPasswordReset(email: string) {
-    return this.request('/auth/reset-password', {
-      method: 'POST',
-      body: JSON.stringify({ email }),
-    });
-  }
-
-  async updatePassword(token: string, password: string) {
-    return this.request('/auth/update-password', {
-      method: 'POST',
-      body: JSON.stringify({ token, password }),
-    });
-  }
-
-  logout() {
-    this.clearToken();
+  private setStoredProfile(profile: Profile) {
+    localStorage.setItem(LOCAL_STORAGE_PROFILE_KEY, JSON.stringify(profile));
   }
 
   // Tasks
   async getTasks() {
-    return this.request('/api/tasks');
+    await delay(150);
+    const tasks = this.getStoredTasks();
+    return { tasks };
   }
 
   async getTasksByRange(start: string, end: string) {
-    return this.request(`/api/tasks/range?start=${start}&end=${end}`);
+    await delay(150);
+    const tasks = this.getStoredTasks();
+    // Simplified filtering logic, similar to what the backend would do
+    const filteredTasks = tasks.filter(t => {
+      const taskDate = t.scheduled_date;
+      return taskDate >= start && taskDate <= end;
+    });
+    return { tasks: filteredTasks };
   }
 
-  async createTask(task: any) {
-    return this.request('/api/tasks', {
-      method: 'POST',
-      body: JSON.stringify(task),
-    });
+  async createTask(task: Partial<Task>) {
+    await delay(200);
+    const tasks = this.getStoredTasks();
+
+    const newTask: Task = {
+      ...task,
+      id: crypto.randomUUID(),
+      user_id: 'local_user',
+      created_at: Date.now(),
+      updated_at: Date.now(),
+      completed: false,
+    };
+
+    tasks.push(newTask);
+    this.setStoredTasks(tasks);
+
+    return { task: newTask };
   }
 
-  async updateTask(id: string, updates: any) {
-    return this.request(`/api/tasks/${id}`, {
-      method: 'PATCH',
-      body: JSON.stringify(updates),
-    });
+  async updateTask(id: string, updates: Partial<Task>) {
+    await delay(200);
+    const tasks = this.getStoredTasks();
+    const index = tasks.findIndex(t => t.id === id);
+
+    if (index === -1) {
+      throw new Error(`Task with id ${id} not found`);
+    }
+
+    tasks[index] = {
+      ...tasks[index],
+      ...updates,
+      updated_at: Date.now(),
+    };
+
+    this.setStoredTasks(tasks);
+    return { task: tasks[index] };
   }
 
   async deleteTask(id: string) {
-    return this.request(`/api/tasks/${id}`, {
-      method: 'DELETE',
-    });
+    await delay(200);
+    const tasks = this.getStoredTasks();
+    const filteredTasks = tasks.filter(t => t.id !== id);
+    this.setStoredTasks(filteredTasks);
+    return { success: true };
   }
 
   // Profile
   async getProfile() {
-    return this.request('/api/profile');
+    await delay(100);
+    return { profile: this.getStoredProfile() };
   }
 
-  async updateProfile(updates: any) {
-    return this.request('/api/profile', {
-      method: 'PATCH',
-      body: JSON.stringify(updates),
-    });
+  async updateProfile(updates: Partial<Profile>) {
+    await delay(200);
+    const profile = this.getStoredProfile();
+    const updatedProfile = { ...profile, ...updates };
+    this.setStoredProfile(updatedProfile);
+    return { profile: updatedProfile };
   }
 
   async deleteAccount() {
-    return this.request('/api/profile/account', {
-      method: 'DELETE',
-    });
+    await delay(500);
+    localStorage.removeItem(LOCAL_STORAGE_TASKS_KEY);
+    localStorage.removeItem(LOCAL_STORAGE_PROFILE_KEY);
+    return { success: true };
   }
 }
 
-export const api = new ApiClient();
+export const api = new LocalStorageApi();

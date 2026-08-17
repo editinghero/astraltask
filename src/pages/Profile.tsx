@@ -1,9 +1,8 @@
-import { useAuth } from '@/providers/AuthProvider';
 import { useTheme } from '@/providers/ThemeProvider';
 import { THEMES } from '@/lib/theme';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { LogOut, Bell, Check, Pencil, Save } from 'lucide-react';
+import { Bell, Check, Pencil, Save } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getPermission, requestPermission } from '@/lib/notifications';
 import { useEffect, useState } from 'react';
@@ -13,7 +12,6 @@ import DeleteAccountDialog from '@/components/DeleteAccountDialog';
 import ImportExport from '@/components/ImportExport';
 
 export default function Profile() {
-  const { user, signOut } = useAuth();
   const { theme, setTheme } = useTheme();
   const [perm, setPerm] = useState(getPermission());
   const [editing, setEditing] = useState(false);
@@ -22,8 +20,10 @@ export default function Profile() {
 
   useEffect(() => { setPerm(getPermission()); }, []);
   useEffect(() => {
-    setName(user?.display_name || user?.email?.split('@')[0] || '');
-  }, [user]);
+    api.getProfile().then(({ profile }) => {
+      setName(profile.display_name || 'Local User');
+    });
+  }, []);
 
   const enableNotifs = async () => {
     const p = await requestPermission();
@@ -40,8 +40,8 @@ export default function Profile() {
       await api.updateProfile({ display_name: trimmed });
       toast.success('Name updated');
       setEditing(false);
-    } catch (e: any) {
-      toast.error(e.message ?? 'Failed to update');
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Failed to update');
     } finally {
       setSavingName(false);
     }
@@ -75,7 +75,6 @@ export default function Profile() {
             ) : (
               <>
                 <p className="font-semibold text-sm truncate">{name}</p>
-                <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
               </>
             )}
           </div>
@@ -140,10 +139,6 @@ export default function Profile() {
       </section>
 
       <ImportExport />
-
-      <Button variant="outline" onClick={signOut} className="w-full glass btn-bordered rounded-2xl h-11 pressable">
-        <LogOut className="w-4 h-4 mr-2" /> Sign out
-      </Button>
 
       <DeleteAccountDialog />
 

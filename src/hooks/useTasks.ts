@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
-import { useAuth } from '@/providers/AuthProvider';
 import { scheduleNotification, cancelNotification } from '@/lib/notifications';
 
 export interface Task {
@@ -35,7 +34,7 @@ export type TaskInput = Partial<Omit<Task, 'id' | 'user_id' | 'created_at' | 'up
 };
 
 // Helper to normalize task from D1 (SQLite returns integers for booleans)
-function normalizeTask(task: any): Task {
+function normalizeTask(task: Partial<Task>): Task {
   // Convert notify_at properly
   let notifyAt = null;
   if (task.notify_at) {
@@ -59,12 +58,10 @@ function normalizeTask(task: any): Task {
 }
 
 export function useTasks() {
-  const { user } = useAuth();
   const qc = useQueryClient();
 
   const query = useQuery({
-    queryKey: ['tasks', user?.id],
-    enabled: !!user,
+    queryKey: ['tasks', 'local'],
     queryFn: async (): Promise<Task[]> => {
       const data = await api.getTasks();
       return (data.tasks || []).map(normalizeTask);
@@ -85,7 +82,6 @@ export function useTasks() {
 
   const create = useMutation({
     mutationFn: async (input: TaskInput) => {
-      if (!user) throw new Error('Not authenticated');
       const data = await api.createTask(input);
       return normalizeTask(data.task);
     },
