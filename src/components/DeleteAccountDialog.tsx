@@ -14,7 +14,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Trash2, Loader2 } from 'lucide-react';
 import { api } from '@/lib/api';
-import { useAuth } from '@/providers/AuthProvider';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 
@@ -22,7 +21,6 @@ export default function DeleteAccountDialog() {
   const [confirm, setConfirm] = useState('');
   const [busy, setBusy] = useState(false);
   const [open, setOpen] = useState(false);
-  const { signOut } = useAuth();
   const navigate = useNavigate();
 
   const handleDelete = async () => {
@@ -30,11 +28,11 @@ export default function DeleteAccountDialog() {
     setBusy(true);
     try {
       await api.deleteAccount();
-      toast.success('Account deleted');
-      signOut();
-      navigate('/auth');
-    } catch (e: any) {
-      toast.error(e.message ?? 'Failed to delete account');
+      toast.success('Data deleted');
+      // Refresh the page to clear states
+      window.location.reload();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Failed to delete data');
     } finally {
       setBusy(false);
     }

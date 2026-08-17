@@ -8,7 +8,6 @@ import TaskEditor from '@/components/TaskEditor';
 import SwipeableTask from '@/components/SwipeableTask';
 import TaskFilters, { DEFAULT_FILTERS, FilterState } from '@/components/TaskFilters';
 import { dateKey, taskCoversDay } from '@/lib/date';
-import { useAuth } from '@/providers/AuthProvider';
 import { Plus, Flame, CheckCircle2, Pin, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -16,7 +15,6 @@ import { toast } from 'sonner';
 const PRIORITY_RANK: Record<string, number> = { high: 0, medium: 1, low: 2 };
 
 export default function Today() {
-  const { user } = useAuth();
   const { tasks, toggle, remove } = useTasks();
   const [selected, setSelected] = useState<Date>(new Date());
   const [weekStart, setWeekStart] = useState<Date>(new Date());
